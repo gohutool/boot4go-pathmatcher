@@ -330,11 +330,17 @@ func BenchmarkGoStdMatch(b *testing.B) {
 	}
 }
 
-func BenchmarkGoStdMatchParallel(b *testing.B) {
-	b.SetParallelism(8)
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			runAll()
-		}
-	})
+func BenchmarkAll(b *testing.B) {
+	// b.SetParallelism(8)
+	for idx := 0; idx < 1; idx++ {
+
+		b.Run("PathMatcher", func(b *testing.B) {
+			BenchmarkPathMatcher(b)
+		})
+
+		b.Run("Go-Std", func(b *testing.B) {
+			BenchmarkGoStdMatch(b)
+		})
+
+	}
 }
