@@ -48,6 +48,47 @@ path.Match("abc", "abc")		// true
 
 */
 func TestPathMatch(t *testing.T) {
+
+	printMatch("**/b", "/b")
+	printMatch("**/b", "/b/aaa/a.log")
+
+	printMatch("**/b/**", "/b/aaa/bbb/a.log")
+	printMatch("**/b/**/", "/b/aaa/bbb/ccc/a.log")
+	printMatch("**/b/**/", "/b/aaa/bbb/ccc/dddd")
+
+	printMatch("**/b/**", "/b/aaa/bbb/ccc/dddd")
+	printMatch("**/b/**", "/b/aaa/bbb/ccc/dddd")
+	printMatch("**/b/**", "/b/aaa/bbb/ccc/dddd/a.log")
+
+	printMatch("[^a]bc", "abc")
+	printMatch("[^a]bc", "bbc")
+	printMatch("[^a]b[^c]", "xbc")
+	printMatch("[^a]b[^c]", "xbx")
+
+	printMatch("[^a-c]bc", "abc")
+	printMatch("[^a-c]bc", "bbc")
+	printMatch("[^a-c]bc", "cbc")
+	printMatch("[^a-c]bc", "dbc")
+	printMatch("[^a-c]bc", "ebc")
+	printMatch("[^a-c]b[c-d]", "dbc")
+	printMatch("[^a-c]b[c-d]", "dbd")
+	printMatch("[^a-c]b[c-d]", "dbe")
+	printMatch("[^a-c]b[c-d]", "dbf")
+
+	printMatch("[a-cx-z]", "a")
+	printMatch("[a-cx-z]", "c")
+	printMatch("[a-cx-z]", "x")
+	printMatch("[a-cx-z]", "z")
+
+	printMatch("[^a-cx-z]", "a")
+	printMatch("[^a-cx-z]", "x")
+	printMatch("[^a-cx-z]", "o")
+
+	printMatch("[a-cx-z]", "o")
+	printMatch("[a-cx-z]", "f")
+
+	printMatch("**/b/**/*.log", "/b/aaa/bbb/a.log")
+
 	printMatch("*", "a")
 	printMatch("*", "sefesfe/")
 	printMatch("*/b", "b")
@@ -76,10 +117,10 @@ func TestPathMatch(t *testing.T) {
 }
 
 func printMatch(a, b string) {
-	if r, err := path.Match(a, b); err != nil {
+	if r, err := Match(a, b); err != nil {
 		fmt.Printf("Error %v\n", err)
 	} else {
-		fmt.Printf("path.Match(%q, %q)=%v\n", a, b, r)
+		fmt.Printf("pathmatcher.Match(%q, %q)=%v\n", a, b, r)
 	}
 }
 
