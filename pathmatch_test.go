@@ -259,6 +259,36 @@ func TestCaseMatch(t *testing.T) {
 	}
 }
 
+func runAll() {
+	for idx, tt := range CaseSample {
+		// Since Match() always uses "/" as the separator, we
+		// don't need to worry about the tt.testOnDisk flag
+		run(idx, tt)
+	}
+}
+
+func run(idx int, tt TestCase) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Errorf("#%v. Match(%#q, %#q) panicked: %#v", idx, tt.match, tt.sample, r)
+		}
+	}()
+
+	// Match() always uses "/" as the separator
+	matched, err := Match(tt.match, tt.sample)
+	if matched != tt.isMatch || (err != nil && !tt.error) {
+		fmt.Errorf("#%v. Match(%#q, %#q) = %v, %v. but expect %v, %v", idx, tt.match, tt.sample, matched, err, tt.isMatch, err)
+	}
+
+	if tt.isStd {
+		stdOk, err := path.Match(tt.match, tt.sample)
+		if matched != stdOk || (err != nil && !tt.error) {
+			fmt.Errorf("#%v. path.Match(%#q, %#q) = %v, %v. but expect %v, %v", idx, tt.match, tt.sample, matched, err, stdOk, err)
+		}
+	}
+}
+
 func matchRun(t *testing.T, idx int, tt TestCase) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -298,4 +328,13 @@ func BenchmarkGoStdMatch(b *testing.B) {
 			path.Match(c.match, c.sample)
 		}
 	}
+}
+
+func BenchmarkGoStdMatchParallel(b *testing.B) {
+	b.SetParallelism(8)
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			runAll()
+		}
+	})
 }
